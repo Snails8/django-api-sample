@@ -6,7 +6,7 @@ services:
     volumes:
       - ./.docker/nginx/conf:/etc/nginx/conf.d
       - ./.docker/nginx/uwsgi_params:/etc/nginx/uwsgi_params
-      - ./src/static:/static
+      - ./static:/static
     ports:
       - '80:80'
     depends_on:
@@ -18,7 +18,7 @@ services:
     expose:
       - '8001'
     volumes:
-      - ./src:/code
+      - .:/code
     command: uwsgi --socket :8001 --module mysite.wsgi
     depends_on:
       - db
