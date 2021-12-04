@@ -1,0 +1,39 @@
+version: '3.5'
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx
+    volumes:
+      - ./.docker/nginx/conf:/etc/nginx/conf.d
+      - ./.docker/nginx/uwsgi_params:/etc/nginx/uwsgi_params
+      - ./src/static:/static
+    ports:
+      - '80:80'
+    depends_on:
+      - app
+
+  app:
+    build: ./.docker/app
+    container_name: app
+    expose:
+      - '8001'
+    volumes:
+      - ./src:/code
+    command: uwsgi --socket :8001 --module mysite.wsgi
+    depends_on:
+      - db
+
+  db:
+    image: postgres:12-alpine
+    container_name: db
+    volumes:
+      - ./.docker/db/dbdata:/var/lib/postgresql/data
+      - ./.docker/db/sql:/docker-entrypoint-initdb.d
+    expose:
+      - '5432'
+    environment:
+      TZ: 'Asia/Tokyo'
+      POSTGRES_USER: 'docker'
+      POSTGRES_ROOT_PASSWORD: 'docker'
+      POSTGRES_PASSWORD: 'docker'
+      POSTGRES_DB: 'cake_development'
